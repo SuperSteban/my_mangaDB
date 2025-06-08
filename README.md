@@ -1,0 +1,3 @@
+# my MANGA DB
+
+TODO: A PROPPER README 😜😜😜
