@@ -1,4 +1,4 @@
-import { generateToken, refreshToken } from "../controllers/config/jwt.config";
+import { generateToken, refreshToken } from "../config/jwt.config";
 import db from "../db"
 import bcrypt from 'bcryptjs';
 

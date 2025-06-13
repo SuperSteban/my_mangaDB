@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import Send from "../utils/response.utils"
 import { z } from "zod"
-import AuthService from "services/auth.service";
-import authSchema from "validations/auth.schema";
-import { generateToken } from "./config/jwt.config";
+import AuthService from "../services/auth.service";
+import authSchema from "../validations/auth.schema";
+import { generateToken } from "../config/jwt.config";
 
 class AuthController {
 
@@ -63,7 +63,7 @@ class AuthController {
             });
 
         } catch (error) {
-            console.error("Login Failed:", error);
+            console.error("Register Failed:", error);
             return Send.error(res, null, "Register failed.");
         }
 
@@ -121,3 +121,4 @@ class AuthController {
         }
     }
 }
+export default AuthController;

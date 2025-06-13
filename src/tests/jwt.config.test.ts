@@ -1,5 +1,5 @@
 import {describe, expect, test} from '@jest/globals';
-import  {generateToken, refreshToken} from "../controllers/config/jwt.config"
+import  {generateToken, refreshToken} from "../config/jwt.config"
 import dotenv from 'dotenv';
 import { stringify } from 'querystring';
 dotenv.config();
