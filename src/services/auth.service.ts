@@ -1,8 +1,6 @@
-import { strict } from "assert";
 import { generateToken, refreshToken } from "../controllers/config/jwt.config";
 import db from "../db"
 import bcrypt from 'bcryptjs';
-import { string } from "zod";
 
 class AuthService {
   static async register(username: string, email: string, password: string) {
@@ -21,34 +19,72 @@ class AuthService {
     });
     const jwtToken = generateToken({ userId: newUser.id });
     const refresh = refreshToken({ userId: newUser.id });
-    db.result('UPDATE users SET refresh_token = $2 WHERE email = $1', [email, refresh])
-      .catch((err: string) => {
-        console.log(`>> Error Refresh: ${err}`)
-      });
+    try {
+      db.none('UPDATE users SET refresh_token = $2 WHERE email = $1', [email, refresh])
+      const valid = await db.one(`select created_at + INTERVAL $2 AS "expired_at" from users where email=$1`, [email, '24 hours']);
+      db.none('UPDATE users SET token_valid_until = $1 WHERE email = $2', [valid.expired_at, email]);
+    } catch (error) {
+      console.log(`>> Error Refresh: ${error}`)
+
+    }
 
     return { user: newUser, access_token: jwtToken, refresh_token: refresh };
 
   }
 
-  static async login(emailOrUsername: string, password: string) {
+  static async login(email: string, password: string) {
     const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE email = $1 OR users WHERE username = $1',
-      [emailOrUsername]);
+      'SELECT * FROM users WHERE email = $1',
+      [email]);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new Error('Invalid credentials');
     }
     const jwtToken = generateToken({ id: user.id });
     const refresh = refreshToken({ id: user.id });
+    try {
+      db.oneOrNone('UPDATE users SET refresh_token = $2 WHERE email = $1', [
+        email,
+        refresh
+      ])
+      const valid = await db.one(`select created_at + INTERVAL $2 AS "expired_at" FROM users where email=$1`, [email, '24 hours']);
+      db.none('UPDATE users SET token_valid_until = $1 WHERE email = $2', [valid.expired_at, email]);
 
-    db.oneOrNone('UPDATE FROM users WHERE email = $1 SET refresh_token = $2', [
-      emailOrUsername,
-      refresh
-    ]).catch((err: string) => {
-      throw new Error(`>> Error Refresh: ${err} `)
-    })
-
-    return { user: user, accessToken: jwtToken, refreshToken: refresh };
+    } catch (error) {
+      throw new Error('Something went wrong, Invalid Session');
+    }
+    
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        full_name: user.full_name,
+        birth_date: user.birth_date,
+        avatar: user.avatar,
+        pronouns: user.pronouns,
+      },
+      accessToken: jwtToken, refreshToken: refresh
+    };
   };
+
+  static async logout(userId: number) {
+    try {
+      db.oneOrNone('UPDATE users SET refresh_token = NULL WHERE id = $1', [
+        userId,
+      ])
+    }catch(error) {
+      throw Error(`>>error logout ${error}`)
+    }
+  }
+
+  static async isRevoked(userID: number){
+    try {
+      const user = db.oneOrNone('SELECT refresh_token from users WHERE id = $1', [userID]); 
+      return user
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 export default AuthService;
