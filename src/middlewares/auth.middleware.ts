@@ -45,10 +45,10 @@ class AuthMiddleware {
 
         try {
             // 2. Verify the refresh token using the secret from the auth config
-            const decodedToken = jwt.verify(refreshToken, authConfig.refresh_secret) as { userId: number };
+            const decodedToken = jwt.verify(refreshToken, authConfig.refresh_secret) as { id: number };
 
             // If the token is valid, attach user information to the request object
-            (req as any).userId = decodedToken.userId;
+            (req as any).id = decodedToken.id;
 
             // Proceed to the next middleware or route handler
             next();

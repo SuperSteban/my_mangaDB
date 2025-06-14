@@ -1,9 +1,9 @@
 export interface Manga {
     id: number;
     title: string;
-    img: string;
+    img: object;
     genre: string;
     author: string;
     url: string;
-    status?: string;    
+    status?: boolean;    
 }

@@ -5,6 +5,7 @@ import authRoutes from "../routes/auth.routes";
 import appConfig from "../config/app.config";
 import robotRoutes from "../routes/robot.routes"
 import userRoutes from "../routes/users.routes";
+import mangaRoutes from "../routes/manga.routes";
 
 class App {
     private app: Express;
@@ -36,6 +37,8 @@ class App {
         this.app.use("/api/user", userRoutes);
 
         this.app.use("/api/robot", robotRoutes);
+
+        this.app.use("/api/mangas", mangaRoutes)
     }
 
     public start() {
