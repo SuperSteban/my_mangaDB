@@ -1,6 +1,7 @@
 import BaseRouter, { RouteConfig } from "../routes/routes.routes";
 import AuthMiddleware from "../middlewares/auth.middleware";
 import MangaController from "../controllers/manga.controller";
+import { upload } from "../middlewares/file.upload.middleware";
 
 class MangaRouters extends BaseRouter {
     protected routes(): RouteConfig[] {
@@ -15,7 +16,7 @@ class MangaRouters extends BaseRouter {
             },
             {
                 method: "get",
-                path: "/manga/:id", 
+                path: "/:id", 
                 middlewares: [
                     AuthMiddleware.authenticateUser
                 ],
@@ -23,11 +24,20 @@ class MangaRouters extends BaseRouter {
             },
             {
                 method: "post",
-                path: "/", 
+                path: "/create", 
                 middlewares: [
                     AuthMiddleware.authenticateUser
                 ],
                 handler: MangaController.create 
+            },
+            {
+                method: "post",
+                path: "/:id/update", 
+                middlewares: [
+                    AuthMiddleware.authenticateUser,
+                    upload.single("cover"),
+                ],
+                handler: MangaController.update
             },
         ]
     }
