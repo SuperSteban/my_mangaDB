@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import db from "../db"
 import { Manga } from "../models/manga.model"
+import { date } from "zod";
 
 /* 
     TODO: MANGA SERVICE
@@ -24,13 +25,18 @@ class MangaService {
     //get Mangas List
     static async mangas(userID:number) {
         try {
-            const mangas: any = await 
-            db
-            .many("SELECT mangas.id, mangas.title, mangas.img, mangas.genre, mangas.author, mangas.url, mangas.status FROM mangas INNER JOIN users ON mangas.user_id = users.id WHERE users.id = $1;", [userID])
+            
+            let mangas: any = db.manyOrNone("SELECT mangas.id, mangas.title, mangas.img, mangas.genre, mangas.author, mangas.url, mangas.status FROM mangas INNER JOIN users ON mangas.user_id = users.id WHERE users.id = $1", [userID])
+                .then(data => {
+                    mangas = data;
+                })
+                .catch(error => {
+                    console.log('ERROR:', error); // print the error;
+                });
             if(!mangas) {
                 throw new Error('No mangas');
             }
-            return mangas as any;
+            return mangas;
         } catch (error) {
             console.log(`>>Error: ${error}`)
         }

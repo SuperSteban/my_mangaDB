@@ -1,14 +1,14 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import authConfig from './auth.config';
 
 dotenv.config();
 
-const secret = process.env.JWT_SECRET || 'default_secret';
 
-export const generateToken = (payload: object, expiresIn:object = { expiresIn: process.env.AUTH_SECRET_EXPIRES_IN as string }): string => {
-  return jwt.sign(payload, secret, expiresIn);
+export const generateToken = (payload: object, expiresIn:object = { expiresIn: authConfig.secret_expires_in as any }): any => {
+  return jwt.sign(payload, authConfig.secret as any, expiresIn);
 }
 
-export const refreshToken = (payload:object, expiresIn:object = { expiresIn: process.env.AUTH_SECRET_EXPIRES_IN as string } ): string =>{
-  return jwt.sign(payload, secret, { expiresIn:'15min'});
+export const refreshToken = (payload:object, expiresIn:object = { expiresIn: authConfig.refresh_secret_expires_in as any } ): any =>{
+  return jwt.sign(payload, authConfig.refresh_secret as string, expiresIn);
 }

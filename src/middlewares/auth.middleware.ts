@@ -20,7 +20,7 @@ class AuthMiddleware {
 
         try {
             // 2. Verify the token using the secret from the auth config
-            const decodedToken = jwt.verify(token, authConfig.secret) as DecodedToken; // Type assertion for better type safety
+            const decodedToken = jwt.verify(token, authConfig.secret as any) as DecodedToken; // Type assertion for better type safety
 
             // If the token is valid, attach user information to the request object
             (req as any).id = decodedToken.id; // Attach userId to the request object
@@ -37,7 +37,7 @@ class AuthMiddleware {
     static refreshTokenValidation = (req: Request, res: Response, next: NextFunction) => {
         // 1. Extract the refresh token from the HttpOnly cookie
         const refreshToken = req.cookies.refreshToken;
-
+        console.log(refreshToken);
         // If there's no refresh token, return an error
         if (!refreshToken) {
             return Send.unauthorized(res, { message: "No refresh token provided" });
@@ -45,8 +45,8 @@ class AuthMiddleware {
 
         try {
             // 2. Verify the refresh token using the secret from the auth config
-            const decodedToken = jwt.verify(refreshToken, authConfig.refresh_secret) as { id: number };
-
+            const decodedToken = jwt.verify(refreshToken, authConfig.refresh_secret as any) as { id: number };
+            console.log(decodedToken);
             // If the token is valid, attach user information to the request object
             (req as any).id = decodedToken.id;
 
