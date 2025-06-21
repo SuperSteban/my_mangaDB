@@ -92,10 +92,8 @@ class AuthController {
         try {
             const userId = (req as any).id;  // Get userId from the refreshTokenValidation middleware
             const refreshToken = req.cookies.refreshToken;  // Get the refresh token from cookies
-            console.log(">REFRESH ID:",userId)
             // Check if the refresh token has been revoked
             const user = await AuthService.isRevoked(userId);
-            console.log("REFRESH>> USER:",user);
             if (!user || !user.refresh_token) {
                 return Send.unauthorized(res, "Refresh token not found");
             }

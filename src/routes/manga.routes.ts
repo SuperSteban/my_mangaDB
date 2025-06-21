@@ -24,15 +24,15 @@ class MangaRouters extends BaseRouter {
             },
             {
                 method: "post",
-                path: "/create", 
+                path: "/", 
                 middlewares: [
-                    AuthMiddleware.authenticateUser
+                    AuthMiddleware.authenticateUser,
                 ],
                 handler: MangaController.create 
             },
             {
-                method: "post",
-                path: "/:id/update", 
+                method: "patch",
+                path: "/:id", 
                 middlewares: [
                     AuthMiddleware.authenticateUser,
                     upload.single("cover"),

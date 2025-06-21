@@ -24,11 +24,9 @@ export default abstract class BaseRouter {
     // Abstract method that must be implemented by subclasses to define the routes
     protected abstract routes(): RouteConfig[];
 
-    // Private method that registers all the routes defined in the `routes` method
     private registerRoutes(): void {
         this.routes().forEach(({ method, path, handler, middlewares = [] }) => {
-            // Use the appropriate HTTP method to register the route, applying any middlewares before the handler
             this.router[method](path, ...middlewares, handler);
         });
     }
-}
+} 

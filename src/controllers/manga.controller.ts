@@ -2,8 +2,7 @@ import { Request, RequestHandler, Response } from "express";
 import Send from "../utils/response.utils"
 import MangaService from "../services/manga.service";
 import mangaSchema from "../validations/manga.schema";
-import { z } from "zod";
-import { title } from "process";
+
 
 
 class MangaController {
@@ -26,8 +25,7 @@ class MangaController {
     static async getAllMangas(req: Request, res: Response,) {
         const userID = (req as any).id
         try {
-            const mangaList = MangaService.mangas(userID);
-            console.log(mangaList);
+            const mangaList = await MangaService.mangas(userID);
             return Send.success(res, { mangaList });
         } catch (error) {
             console.error("GET ALL MANGAS:", error);
@@ -37,57 +35,66 @@ class MangaController {
 
     }
     static create = async (req: Request, res: Response) => {
-        const result = mangaSchema.createManga.safeParse(req.body as any)
+        const result = await mangaSchema.createManga.safeParseAsync(req.body as any)
         const user_id = (req as any).id
         if (!result.success) {
-            return Send.badRequest(res, { result })
+            return Send.badRequest(res, result.error)
         } else {
             try {
 
                 const newManga = await MangaService.create(result.data.title, result.data.url, user_id);
                 if (!newManga) {
-                    return Send.error(res, { mesage: "Fail Manga Save" })
+                    console.log("CONTROLLER ERROR>>", newManga)
+                    return Send.error(res, { mesage: "Fail to Save Manga" })
                 }
 
-                return Send.success(res, { message: "Success: Manga Saved" })
+                return Send.success(res, { message: "Success: Manga Saved Successfully" })
 
             } catch (error) {
                 console.error("Create Manga Failed:", error);
-                return Send.error(res, { mesage: "Fail Manga Save" });
+                return Send.error(res, { mesage: "Fail to Save Manga" });
             }
         }
     }
 
     static update = async (req: Request, res: Response) => {
         const result = mangaSchema.updateManga.safeParse(req.body as any);
+        const userID = (req as any).id;
+        const avatar = (req as any).file;
         if (!result || !result.data) {
-            return Send.badRequest(res, { result })
+            return Send.badRequest(res,  result.error )
         }
+       
         try {
             const mangaId = parseInt(req.params.id);
-            const file = (req as any).cover;
-            const url_file = file.path;
-            if(!file){
-                Send.badRequest(res, {message:"Try Again, Your file probabbly got lost"})
-            }
-            const mangaStatus = result.data.status == "on_going"? true:false; 
+            const status = result.data.status === 'on_going'? true:false;
+            const resUptade = {...result, img:avatar.filename, manga_id:mangaId, user_id:userID} 
             const updatManga = await MangaService.update(
-               mangaId,
-               result.data.title,
-               result.data.genre,
-               result.data.author,
-               result.data.url,
-               mangaStatus
+               resUptade.user_id,
+               resUptade.manga_id,
+               resUptade.data.title,
+               resUptade.data.genre,
+               resUptade.data.author,
+               resUptade.data.url,
+               status,
+               resUptade.img
             );
 
-            if(!updatManga){
-              return Send.error(res, {message:"Fail in Update Action"});
+           if (updatManga.rowCount <= 0) {
+                return Send.error(res, { message: "Fail in Update Action" });
             }
-            return Send.success(res, {message:"Updated Successfully"});
+            return Send.success(res, { message: "Updated Successfully" });
         } catch (error) {
             console.error("Create Manga Failed:", error);
             return Send.error(res, { mesage: "Fail update" });
         }
+    }
+
+    static delete = async (req: Request, res: Response) => {
+        console.log("NOTE IMPLEMENTED");
+        return Send.success(res, { message: "not implemented" })
+
+
     }
 
 }

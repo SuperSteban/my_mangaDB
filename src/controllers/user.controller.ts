@@ -10,6 +10,7 @@ class UserController {
     static getUser = async (req: Request, res: Response) => {
     try {
         const userId:number = (req as any).id;
+        console.log(userId);
         const user = await UserService.getUser(userId);
         if (!user) {
             return Send.notFound(res, {}, "User not found");

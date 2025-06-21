@@ -7,6 +7,7 @@ import robotRoutes from "../routes/robot.routes"
 import userRoutes from "../routes/users.routes";
 import mangaRoutes from "../routes/manga.routes";
 
+
 class App {
     private app: Express;
 
@@ -16,39 +17,41 @@ class App {
         this.initMiddlewares();
         this.initRoutes();
     }
-
+  
     private initMiddlewares() {
-        this.app.use(express.json());
-        this.app.use(cookieParser());
-        this.app.use(cors({
-            origin: [
-                'http://localhost:3000', // your frontend url
-                'https://mywebsite.com' // your production url optional
-            ],
-            methods: ["GET", "POST", "DELETE"],
-            credentials: true
-        }))
-    }
+    this.app.use(express.json());
+    this.app.use(cookieParser());
+    this.app.use(cors({
+        origin: [
+            'http://localhost:3000', // your frontend url
+            'https://mywebsite.com' // your production url optional
+        ],
+        methods: ["GET", "POST", "DELETE", "PATCH"],
+        credentials: true
+    }))
+}
 
     private initRoutes() {
-        // /api/auth/*
-        this.app.use("/api/auth", authRoutes);
-        // /api/user/*
-        this.app.use("/api/user", userRoutes);
+    // /api/auth/*
+    this.app.use("/api/auth", authRoutes);
+    // /api/user/*
+    this.app.use("/api/user", userRoutes);
 
-        this.app.use("/api/robot", robotRoutes);
+    this.app.use("/api/robot", robotRoutes);
 
-        this.app.use("/api/mangas", mangaRoutes)
-    }
+    this.app.use("/api/mangas", mangaRoutes);
+
+
+}
 
     public start() {
-        const { port, host } = appConfig;
+    const { port, host } = appConfig;
 
-        this.app.listen(port, host, () => {
-            console.log(`server is running on http://${host}:${port}`);
+    this.app.listen(port, host, () => {
+        console.log(`server is running on http://${host}:${port} 🚀`);
 
-        })
-    }
+    })
+}
 }
 
 export default App;

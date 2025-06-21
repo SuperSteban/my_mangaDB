@@ -28,14 +28,9 @@ const cn = {
 };
 
 const db = pgp(cn)
-/* const db = pgp({
-  host: 'localhost',
-  port: 5432,
-  database: "manga_db",
-  user: "blakymango",
-  password: 'blakymango',
-  max: 20,
-  idleTimeoutMillis: 300000,
-
-}); */
+process.on('SIGINT', () => {
+  console.log('Closing DB pool...');
+  pgp.end();
+  process.exit();
+});
 export default db;

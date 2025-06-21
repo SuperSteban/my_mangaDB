@@ -1,4 +1,10 @@
-import { z } from "zod";
+import * as z from "zod/v4";
+const ACCEPTED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+]
 
 
 const updateManga = z.object({
@@ -7,16 +13,22 @@ const updateManga = z.object({
   author: z.string(),
   url: z.string(),
   status: z.string(),
-}) 
+
+})
+
+
+
 
 const createManga = z.object({
-  title: z.string().trim().min(1, "Title is required"),
-  url: z.string().trim().min(1, "URL is required")
-}) 
+  title: z.string().trim().min(1, { message: "Title is required" }),
+  url: z.string().trim().min(1, { message: "URL is required" }),
+
+})
+
 
 const mangaSchema = {
-    updateManga,
-    createManga
+  updateManga,
+  createManga,
 }
 
 export default mangaSchema;
