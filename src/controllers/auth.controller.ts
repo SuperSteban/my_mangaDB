@@ -90,10 +90,12 @@ class AuthController {
 
     static refreshToken = async (req: Request, res: Response) => {
         try {
-            const userId = (req as any).id;  // Get userId from the refreshTokenValidation middleware
+            const userID= (req as any).id;  // Get userID from the refreshTokenValidation middleware
+            console.log(userID)
             const refreshToken = req.cookies.refreshToken;  // Get the refresh token from cookies
             // Check if the refresh token has been revoked
-            const user = await AuthService.isRevoked(userId);
+            const user = await AuthService.isRevoked(userID);
+            console.log("REVBOKED ?,,",user)
             if (!user || !user.refresh_token) {
                 return Send.unauthorized(res, "Refresh token not found");
             }
@@ -103,7 +105,8 @@ class AuthController {
                 return Send.unauthorized(res, { message: "Invalid refresh token" });
             }
 
-            const newAccessToken = generateToken({ id: user.id });
+            const newAccessToken = generateToken({ id: userID }, { expiresIn: '15m' });
+            console.log(newAccessToken);
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",

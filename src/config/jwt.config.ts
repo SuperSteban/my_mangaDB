@@ -9,6 +9,6 @@ export const generateToken = (payload: object, expiresIn:object = { expiresIn: a
   return jwt.sign(payload, authConfig.secret as any, expiresIn);
 }
 
-export const refreshToken = (payload:object, expiresIn:object = { expiresIn: authConfig.refresh_secret_expires_in as any } ): any =>{
-  return jwt.sign(payload, authConfig.refresh_secret as string, expiresIn);
+export const refreshToken = (payload: object, expiresIn:object = { expiresIn: authConfig.refresh_secret_expires_in as any } ): any =>{
+  return jwt.sign(payload, authConfig.refresh_secret as any, expiresIn);
 }

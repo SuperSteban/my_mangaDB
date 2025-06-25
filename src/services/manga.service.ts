@@ -1,7 +1,5 @@
-import { RequestHandler } from "express";
 import db from "../db"
-import { error } from "console";
-import { ur } from "zod/dist/types/v4/locales";
+
 
 class MangaService {
     //getManga By ID
@@ -28,13 +26,13 @@ class MangaService {
             console.log(mangas);
             if (!mangas) {
                 console.log("Error_SERVICE>>", mangas);
-                throw new Error('Sorry we could Not get any mangas');
+                throw new Error('Sorry could Not get any mangas');
 
             }
             return mangas;
         } catch (error) {
             console.log(`>>Error: ${error}`)
-            throw new Error('Sorry we could Not get any mangas');
+            throw new Error('Sorry could Not get any mangas');
         }
     }
 
@@ -68,7 +66,8 @@ class MangaService {
         img: string
     ) {
         try {
-            const updateManga = await db.result("UPDATE mangas SET user_id=$1, title=$2, genre=$3, author=$4, url=$5, status=$6, img=$7 WHERE id=$8", [
+            const updateManga = await db.
+            result("UPDATE mangas SET user_id=$1, title=$2, genre=$3, author=$4, url=$5, status=$6, img=$7 WHERE id=$8", [
                 user_id,
                 title,
                 genre,
@@ -87,6 +86,32 @@ class MangaService {
             console.log(`>>Error: ${error}`)
             throw new Error('Error, Fail to upload');
         }
+    }
+
+    static async delete(mangaID: number) {
+        try {
+            const isManga = await db.one("SELECT count(id) FROM mangas WHERE id=$1",[mangaID]);
+           
+            if(parseInt(isManga.count) < 1) {
+                return new Error("This manga does not exits...")
+            }
+            const deleteManga = await db.result("DELETE FROM mangas WHERE id=$1",[mangaID]);      
+    
+            return deleteManga;
+        } catch (error) {
+             console.log(`>>Error: ${error}`)
+            throw new Error('Error, Fail to delete');
+        }
+    }
+
+    static async isOwner(mangaID: number, userID: number){
+        const isAuthorized = await db.
+        one
+        ("SELECT count(users.id) FROM mangas INNER JOIN users ON users.id = mangas.user_id WHERE users.id = $1 AND mangas.id = $2",[userID, mangaID]);
+        if(!isAuthorized){
+            throw new Error("Manga not found or you are not allow here!!!")
+        }
+        return isAuthorized;
     }
 }
 

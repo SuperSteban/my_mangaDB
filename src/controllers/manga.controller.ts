@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import Send from "../utils/response.utils"
 import MangaService from "../services/manga.service";
 import mangaSchema from "../validations/manga.schema";
@@ -24,6 +24,11 @@ class MangaController {
     }
     static async getAllMangas(req: Request, res: Response,) {
         const userID = (req as any).id
+        if (!userID) {
+            return Send.unauthorized(res, { message: "Denied Access", userID })
+        }
+        console.log("GERALL ID", (req as any).id)
+        console.log(userID);
         try {
             const mangaList = await MangaService.mangas(userID);
             return Send.success(res, { mangaList });
@@ -62,25 +67,25 @@ class MangaController {
         const userID = (req as any).id;
         const avatar = (req as any).file;
         if (!result || !result.data) {
-            return Send.badRequest(res,  result.error )
+            return Send.badRequest(res, result.error)
         }
-       
+
         try {
             const mangaId = parseInt(req.params.id);
-            const status = result.data.status === 'on_going'? true:false;
-            const resUptade = {...result, img:avatar.filename, manga_id:mangaId, user_id:userID} 
+            const status = result.data.status === 'on_going' ? true : false;
+            const resUptade = { ...result, img: avatar.filename, manga_id: mangaId, user_id: userID }
             const updatManga = await MangaService.update(
-               resUptade.user_id,
-               resUptade.manga_id,
-               resUptade.data.title,
-               resUptade.data.genre,
-               resUptade.data.author,
-               resUptade.data.url,
-               status,
-               resUptade.img
+                resUptade.user_id,
+                resUptade.manga_id,
+                resUptade.data.title,
+                resUptade.data.genre,
+                resUptade.data.author,
+                resUptade.data.url,
+                status,
+                resUptade.img
             );
 
-           if (updatManga.rowCount <= 0) {
+            if (updatManga.rowCount <= 0) {
                 return Send.error(res, { message: "Fail in Update Action" });
             }
             return Send.success(res, { message: "Updated Successfully" });
@@ -91,10 +96,38 @@ class MangaController {
     }
 
     static delete = async (req: Request, res: Response) => {
-        console.log("NOTE IMPLEMENTED");
-        return Send.success(res, { message: "not implemented" })
+        try {
+            const mangaID = parseInt(req.params.id);
+            const deleteManga = await MangaService.delete(mangaID);
+            if (!deleteManga) {
+                return Send.error(res, {message:"Fail", error:deleteManga})
+            }
+            return Send.noContent(res, { message: "Deleted succesfully" })
+
+        } catch (error) {
+            console.error("DELETE Manga Failed:", error);
+            return Send.error(res, { mesage: "Fail to delete Manga" });
+        }
 
 
+    }
+
+
+
+    //Verify
+
+    static async isOwner(res: Response, mangaID: number, userID:number) {
+        
+        try {
+           const result = await MangaService.isOwner(mangaID, userID);
+           if(parseInt(result) < 1){
+            return Send.unauthorized(res, {message:"You are not allow here!!"})
+           }
+           return result
+        } catch (error) {
+            return new Error(error as string)
+
+        }
     }
 
 }

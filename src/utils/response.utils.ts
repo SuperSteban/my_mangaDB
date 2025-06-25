@@ -29,6 +29,15 @@ class Send {
         });
         return;
     }
+    static noContent(res: Response, data: any, mesage = "no content"){
+        // 204 resource has been deleted successfully
+        res.status(204).json({
+            ok:true,
+            mesage,
+            data,
+        });
+        return;
+    }
 
     static unauthorized(res: Response, data: any, message = "unauthorized") {
         // 401 for unauthorized access (e.g., invalid token)
