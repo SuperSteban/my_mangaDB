@@ -7,6 +7,5 @@ Build in Node.js, TypeScript, Express and using PostgreSQL DB.
 - User Authentication 🔐
 - jwt session 🔑
 - data validation with zod 🚓👮‍♀️🚨
-- manga managment upcoming 👷‍♂️👷‍♂️
 - profile update upcoming 👷‍♂️👷‍♂️
 
